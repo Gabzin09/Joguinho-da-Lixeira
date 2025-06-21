@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <img id="invisible-drag-image" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" style="display:none;" />
+  <title>teste</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 20px;
+      background-color: #ffffff;
+    }
+
+    .container {
+      margin-bottom: 30px;
+    }
+
+    .draggable {
+      display: inline-block;
+      padding: 0px;
+      font-size: 75px;
+      margin: 0px;
+      margin-top: 125px;
+      border: transparent;
+      cursor: grab;
+      background: none;
+    }
+
+    .lixeiras {
+      display: flex;
+      justify-content: center;   
+      flex-wrap: wrap;        
+      gap: 10px;               
+      margin-bottom: 30px;
+    }
+
+    .gif-lixeira {
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+    .dropzone {
+      display: flex;
+      justify-content: center;  
+      align-items: center;    
+      width: 150px;
+      height: 150px;
+      margin: 0px;
+      vertical-align: top;
+    }  
+
+    .dropzone img {
+      width: 250px;
+      height: 250px;
+    }
+
+    .draggable-img {
+      width: 150px;
+      height: auto;
+      pointer-events: none; 
+    }
+
+    .hidden-drag {
+  opacity: 0;
+}
+
+  </style>
+</head>
+
+<body>
+  <h1>Arraste o item para a lixeira correta</h1>
+<div class="lixeiras">
+<div class="dropzone" data-accept="1">
+  <img
+    src="Lixeira Red-fechar.gif"
+    alt="Lixeira Vermelha"
+    class="gif-lixeira"
+    data-default="Lixeira Red-fechar.gif"
+    data-open="Lixeira Red-abrir.gif"
+    data-close="Lixeira Red-fechar.gif"
+  >
+</div>
+<div class="dropzone" data-accept="2">
+<img
+    src="Lixeira Blue-fechar.gif"
+    alt="Lixeira Azul"
+    class="gif-lixeira"
+    data-default="Lixeira Blue-fechar.gif"
+    data-open="Lixeira Blue-abrir.gif"
+    data-close="Lixeira Blue-fechar.gif"
+  >
+</div>
+<div class="dropzone" data-accept="3">
+<img
+    src="Lixeira Yellow-fechar.gif"
+    alt="Lixeira Amarela"
+    class="gif-lixeira"
+    data-default="Lixeira Yellow-fechar.gif"
+    data-open="Lixeira Yellow-abrir.gif"
+    data-close="Lixeira Yellow-fechar.gif"
+  >
+</div>
+<div class="dropzone" data-accept="4">
+<img
+    src="Lixeira Green-fechar.gif"
+    alt="Lixeira Verde"
+    class="gif-lixeira"
+    data-default="Lixeira Green-fechar.gif"
+    data-open="Lixeira Green-abrir.gif"
+    data-close="Lixeira Green-fechar.gif"
+  >
+</div>
+<div class="dropzone" data-accept="5">
+<img
+    src="Lixeira Brown-fechar.gif"
+    alt="Lixeira Marrom"
+    class="gif-lixeira"
+    data-default="Lixeira Brown-fechar.gif"
+    data-open="Lixeira Brown-abrir.gif"
+    data-close="Lixeira Brown-fechar.gif"
+  >
+</div>
+<div class="dropzone" data-accept="6">
+<img
+    src="Lixeira Gray-fechar.gif"
+    alt="Lixeira Cinza"
+    class="gif-lixeira"
+    data-default="Lixeira Gray-fechar.gif"
+    data-open="Lixeira Gray-abrir.gif"
+    data-close="Lixeira Gray-fechar.gif"
+  >
+</div>
+</div>
+
+<div class="container" id="itens">
+  <div id="1" class="draggable" draggable="true">
+    <img src="Garrafa.png" alt="Garrafa" class="draggable-img" draggable="false">
+  </div>
+</div>
+
+  <script>
+const draggables = document.querySelectorAll('.draggable');
+const dropzones = document.querySelectorAll('.dropzone');
+
+draggables.forEach(item => {
+  item.addEventListener('dragstart', event => {
+    event.dataTransfer.setData('text/plain', item.id);
+    
+    item.dataset.originalParent = item.parentElement.id;
+
+    setTimeout(() => item.classList.add('hidden-drag'), 0);
+  });
+
+  item.addEventListener('dragend', () => {
+    item.classList.remove('hidden-drag');
+  });
+});
+
+dropzones.forEach(zone => {
+  const gif = zone.querySelector('.gif-lixeira');
+
+  zone.addEventListener('dragenter', () => {
+    zone.style.borderColor = '#0f0';
+
+    if (gif) {
+      const openGif = gif.getAttribute('data-open');
+      gif.src = '';
+      gif.src = openGif;
+    }
+  });
+
+  zone.addEventListener('dragover', event => {
+    event.preventDefault();
+  });
+
+  zone.addEventListener('dragleave', () => {
+    zone.style.borderColor = 'transparent';
+
+    if (gif) {
+      const closeGif = gif.getAttribute('data-close');
+      gif.src = '';
+      gif.src = closeGif;
+    }
+  });
+
+  zone.addEventListener('drop', event => {
+    event.preventDefault();
+    const droppedId = event.dataTransfer.getData('text/plain');
+    const acceptedId = zone.getAttribute('data-accept');
+
+    if (droppedId === acceptedId) {
+      const droppedEl = document.getElementById(droppedId);
+      droppedEl.remove(); 
+      zone.style.borderColor = 'transparent';
+    } else {
+      alert('Lixeira errada!');
+      zone.style.borderColor = 'red';
+      setTimeout(() => {
+        zone.style.borderColor = 'transparent';
+      }, 1000);
+    }
+
+    if (gif) {
+      const defaultGif = gif.getAttribute('data-default');
+      setTimeout(() => {
+        gif.src = '';
+        gif.src = defaultGif;
+      }, 800); 
+    }
+  });
+});
+  </script>
+</body>
+</html>
